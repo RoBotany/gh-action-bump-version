@@ -137,8 +137,8 @@ const workspace = process.env.GITHUB_WORKSPACE;
   try {
     const current = pkg.version.toString();
     // set git user
-    await runInWorkspace('git', ['config', 'user.name', `"${process.env.GITHUB_USER || 'Automated Version Bump'}"`]);
-    await runInWorkspace('git', [
+    await runInWorkspaceAndPrint('git', ['config', 'user.name', `"${process.env.GITHUB_USER || 'Automated Version Bump'}"`]);
+    await runInWorkspaceAndPrint('git', [
       'config',
       'user.email',
       `"${process.env.GITHUB_EMAIL || 'gh-action-bump-version@users.noreply.github.com'}"`,
@@ -166,23 +166,23 @@ const workspace = process.env.GITHUB_WORKSPACE;
 
     // do it in the current checked out github branch (DETACHED HEAD)
     // important for further usage of the package.json version
-    await runInWorkspace('npm', ['version', '--allow-same-version=true', '--git-tag-version=false', current]);
+    await runInWorkspaceAndPrint('npm', ['version', '--allow-same-version=true', '--git-tag-version=false', current]);
     console.log('current 1:', current, '/', 'version:', version);
     let newVersion = execSync(`npm version --git-tag-version=false ${version}`).toString().trim().replace(/^v/, '');
     console.log('newVersion 1:', newVersion);
     newVersion = `${tagPrefix}${newVersion}`;
     if (process.env['INPUT_SKIP-COMMIT'] !== 'true') {
-      await runInWorkspace('git', ['add', `${path.join(workspace, 'package.json')}`]);
-      await runInWorkspace('git', ['commit', '-m', commitMessage.replace(/{{version}}/g, newVersion)]);
+      await runInWorkspaceAndPrint('git', ['add', `${path.join(workspace, 'package.json')}`]);
+      await runInWorkspaceAndPrint('git', ['commit', '-m', commitMessage.replace(/{{version}}/g, newVersion)]);
     }
 
     // now go to the actual branch to perform the same versioning
     if (isPullRequest) {
       // First fetch to get updated local version of branch
-      await runInWorkspace('git', ['fetch']);
+      await runInWorkspaceAndPrint('git', ['fetch']);
     }
-    await runInWorkspace('git', ['checkout', currentBranch]);
-    await runInWorkspace('npm', ['version', '--allow-same-version=true', '--git-tag-version=false', current]);
+    await runInWorkspaceAndPrint('git', ['checkout', currentBranch]);
+    await runInWorkspaceAndPrint('npm', ['version', '--allow-same-version=true', '--git-tag-version=false', current]);
     console.log('current 2:', current, '/', 'version:', version);
     console.log('execute npm version now with the new version:', version);
     newVersion = execSync(`npm version --git-tag-version=false ${version}`).toString().trim().replace(/^v/, '');
@@ -196,7 +196,8 @@ const workspace = process.env.GITHUB_WORKSPACE;
     try {
       // to support "actions/checkout@v1"
       if (process.env['INPUT_SKIP-COMMIT'] !== 'true') {
-        await runInWorkspace('git', ['commit', '-a', '-m', commitMessage.replace(/{{version}}/g, newVersion)]);
+        await runInWorkspaceAndPrint('git', ['add', `${path.join(workspace, 'package.json')}`]);
+        await runInWorkspaceAndPrint('git', ['commit', '-m', commitMessage.replace(/{{version}}/g, newVersion)]);
       }
     } catch (e) {
       console.warn(
@@ -207,14 +208,14 @@ const workspace = process.env.GITHUB_WORKSPACE;
 
     const remoteRepo = `https://${process.env.GITHUB_ACTOR}:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
     if (process.env['INPUT_SKIP-TAG'] !== 'true') {
-      await runInWorkspace('git', ['tag', newVersion]);
+      await runInWorkspaceAndPrint('git', ['tag', newVersion]);
       if (process.env['INPUT_SKIP-PUSH'] !== 'true') {
-        await runInWorkspace('git', ['push', remoteRepo, '--follow-tags']);
-        await runInWorkspace('git', ['push', remoteRepo, '--tags']);
+        await runInWorkspaceAndPrint('git', ['push', remoteRepo, '--follow-tags']);
+        await runInWorkspaceAndPrint('git', ['push', remoteRepo, '--tags']);
       }
     } else {
       if (process.env['INPUT_SKIP-PUSH'] !== 'true') {
-        await runInWorkspace('git', ['push', remoteRepo]);
+        await runInWorkspaceAndPrint('git', ['push', remoteRepo]);
       }
     }
   } catch (e) {
@@ -245,8 +246,9 @@ function logError(error) {
   console.error(`✖  fatal     ${error.stack || error}`);
 }
 
-function runInWorkspace(command, args) {
+function runInWorkspaceAndPrint(command, args) {
   return new Promise((resolve, reject) => {
+    console.log(`cwd: ${workspace}. Executing: "${command} ${args.join(' ')}"`);
     const child = spawn(command, args, { cwd: workspace });
     let isDone = false;
     const errorMessages = [];
