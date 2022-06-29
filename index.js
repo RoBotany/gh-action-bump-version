@@ -172,7 +172,8 @@ const workspace = process.env.GITHUB_WORKSPACE;
     console.log('newVersion 1:', newVersion);
     newVersion = `${tagPrefix}${newVersion}`;
     if (process.env['INPUT_SKIP-COMMIT'] !== 'true') {
-      await runInWorkspace('git', ['commit', '-a', '-m', commitMessage.replace(/{{version}}/g, newVersion)]);
+      await runInWorkspace('git', ['add', `${path.join(workspace, 'package.json')}`]);
+      await runInWorkspace('git', ['commit', '-m', commitMessage.replace(/{{version}}/g, newVersion)]);
     }
 
     // now go to the actual branch to perform the same versioning
