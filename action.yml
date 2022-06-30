@@ -47,7 +47,7 @@ inputs:
     default: ''
     required: true
   ACTOR:
-    description: 'User(or ci's username) on whose/which behalf to act'
+    description: 'User(or ci username) on whose/which behalf to act'
     default: ''
     required: true
   target-branch:

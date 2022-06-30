@@ -23,7 +23,8 @@ jobs:
         with:
           tag-prefix: 'v'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ secrets.GITHUB_ACTOR }}
       - name: 'cat package.json'
         run: cat ./package.json
       - name: 'Output Step'
