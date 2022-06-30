@@ -42,6 +42,14 @@ inputs:
     description: 'Custom dir to the package'
     default: ''
     required: false
+  AUTH_TOKEN:
+    description: 'Authentication token to use'
+    default: ''
+    required: true
+  ACTOR:
+    description: 'User(or ci's username) on whose/which behalf to act'
+    default: ''
+    required: true
   target-branch:
     description: 'A separate branch to perform the version bump on'
     default: ''
