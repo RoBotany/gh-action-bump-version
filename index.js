@@ -206,7 +206,7 @@ const workspace = process.env.GITHUB_WORKSPACE;
       );
     }
 
-    const remoteRepo = `https://${process.env.ACTOR}:${process.env.AUTH_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
+    const remoteRepo = `https://${process.env.AUTH_TOKEN}@github.com/${process.env.ACTOR}/${process.env.GITHUB_REPOSITORY}.git`;
     console.log(`Acting as ${process.env.ACTOR}`);
     console.log(`${process.env.AUTH_TOKEN.length}`);
     if (process.env['INPUT_SKIP-TAG'] !== 'true') {
