@@ -43,7 +43,7 @@ const workspace = process.env.GITHUB_WORKSPACE;
   }
 
   if (isVersionBump) {
-    exitSuccess('No action necessary because we found a previous bump!');
+    exitFailure("✔  success: No action necessary because we found a previous bump!")
     return;
   }
 
@@ -207,8 +207,6 @@ const workspace = process.env.GITHUB_WORKSPACE;
     }
 
     const remoteRepo = `https://${process.env.AUTH_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
-    console.log(`Acting as ${process.env.ACTOR}`);
-    console.log(`${process.env.AUTH_TOKEN.length}`);
     if (process.env['INPUT_SKIP-TAG'] !== 'true') {
       await runInWorkspaceAndPrint('git', ['tag', newVersion]);
       if (process.env['INPUT_SKIP-PUSH'] !== 'true') {
